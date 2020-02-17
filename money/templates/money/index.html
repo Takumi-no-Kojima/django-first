@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>HousekeepingBook</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="{% static 'money/style.css' %}">
+        <script type="text/javascript" src="{% static 'money/js/data.js' %}"></script>
+        <script type="text/javascript" src="{% static 'money/js/draw.js' %}"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row top-bg">
+                <div class="col-md-8 mt-2 mb-3">
+                    <h1>{{ year }}年 {{ month }}月</h1>
+                </div>
+                <div class="col-md-2 text-center mt-4">
+                    <h4>
+                        <a href="/money/{{ prev_year }}/{{ prev_month }}">
+                            << {{ prev_month }}月
+                        </a>
+                    </h4>
+                </div>
+                <div class="col-md-2 text-center mt-4">
+                    <h4>
+                        <a href="/money/{{ next_year }}/{{ next_month }}">
+                            {{ next_month }}月 >>
+                        </a>
+                    </h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mt-4 mb-4">
+                    <form action="/money/" method="post">
+                        {% csrf_token %}
+                        {{ form_add.as_table }}
+                        <input type="submit" name="add" value="送信">
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>支出</h2>
+                </div>
+                <div class="col-md-6">
+                    <h2>支出額の推移</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <table>
+                        <tr>
+                            <th>日付</th>
+                            <th>用途</th>
+                            <th>カテゴリー</th>
+                            <th>金額</th>
+                            <th>削除</th>
+                        </tr>
+                        {% for m in money %}
+                        <tr>
+                            <td>{{ m.use_date }}</td>
+                            <td>{{ m.detail }}</td>
+                            <td>{{ m.category }}</td>
+                            <td>{{ m.cost }}円</td>
+                            <td>
+                                <form action="/money/" method="post">
+                                    {% csrf_token %}
+                                    {{ form_delete.as_table }}
+                                    <input type="hidden" name="year" value={{ year }}>
+                                    <input type="hidden" name="use_date" value={{ m.use_date }}>
+                                    <input type="hidden" name="detail" value={{ m.detail }}>
+                                    <input type="hidden" name="cost" value={{ m.cost }}>
+                                    <input type="submit" name="delete" value="削除">
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="data"></canvas>
+                    <script type="text/javascript" src="{% static 'money/js/draw.js' %}"></script>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
